@@ -1,4 +1,4 @@
-const { Client, Location, List, Buttons, LocalAuth, MessageMedia } = require('whatsapp-web.js');
+const { Client, Location, List, Buttons, LocalAuth, MessageMedia } = require('./index');
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const socketIO = require('socket.io');
