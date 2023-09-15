@@ -2,7 +2,7 @@
   "name": "whatsapp-web.js",
   "version": "1.22.2-alpha.0",
   "description": "Library for interacting with the WhatsApp Web API ",
-  "main": "./index.js",
+  "main": "app.js",
   "typings": "./index.d.ts",
   "scripts": {
     "start": "node bot.js",
