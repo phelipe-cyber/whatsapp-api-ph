@@ -1,16 +1,16 @@
 const { Client, Location, List, Buttons, LocalAuth, MessageMedia } = require('./index');
-// const express = require('express');
-// const { body, validationResult } = require('express-validator');
-// const socketIO = require('socket.io');
-// const qrcode = require('qrcode');
-// const http = require('http');
-// const fileUpload = require('express-fileupload');
-// const axios = require('axios');
-// const mime = require('mime-types');
-// const port = process.env.PORT || 8000;
-// const app = express();
-// const server = http.createServer(app);
-// const io = socketIO(server);
+const express = require('express');
+const { body, validationResult } = require('express-validator');
+const socketIO = require('socket.io');
+const qrcode = require('qrcode');
+const http = require('http');
+const fileUpload = require('express-fileupload');
+const axios = require('axios');
+const mime = require('mime-types');
+const port = process.env.PORT || 8000;
+const app = express();
+const server = http.createServer(app);
+const io = socketIO(server);
 
 
 function delay(t, v) {
