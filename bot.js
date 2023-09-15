@@ -49,7 +49,7 @@ const client = new Client({
 client.initialize();
 
 client.on('loading_screen', (percent, message) => {
-    console.log('LOADING SCREEN', percent, message);
+    // console.log('LOADING SCREEN', percent, message);
 });
 
 // client.on('qr', (qr) => {
