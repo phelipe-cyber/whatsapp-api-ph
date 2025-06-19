@@ -21,6 +21,8 @@ Conheça o canal da Comunidade ZDG:
 
 🤑 Garanta sua renda extra explorando todo o poder da API de graça, mesmo que você nao seja programador, clicando no link <a href="https://comunidadezdg.com.br">Comunidade ZDG</a>. Obrigado =)
 
+
 npm install pm2 -g
 pm2 start botzdg.js
 
+rm -rf node_modules package-lock.json .wwebjs_auth/ .wwebjs_cache/

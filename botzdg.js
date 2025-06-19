@@ -34,7 +34,7 @@ app.get('/', (req, res) => {
 });
 
 const client = new Client({
-  authStrategy: new LocalAuth({ clientId: 'bot-zdg' }),
+  authStrategy: new LocalAuth({ clientId: 'BOT-PH' }),
   puppeteer: { headless: true,
     args: [
       '--no-sandbox',
@@ -109,58 +109,38 @@ app.post('/send-message', [
     });
   }
 
-  const number = req.body.number;
-  const numberDDI = number.substr(0, 2);
-  const numberDDD = number.substr(2, 2);
-  const numberUser = number.substr(-8, 8);
+  let number = req.body.number;
   const message = req.body.message;
 
-  if (numberDDI !== "55") {
-    const numberZDG = number + "@c.us";
-    client.sendMessage(numberZDG, message).then(response => {
-    res.status(200).json({
-      status: true,
-      message: 'BOT-PH Mensagem enviada',
-      response: response
-    });
-    }).catch(err => {
-    res.status(500).json({
-      status: false,
-      message: 'BOT-PH Mensagem não enviada',
-      response: err.text
-    });
-    });
+  // Garante que o número tenha DDI 55
+  if (!number.startsWith("55")) {
+    number = "55" + number;
   }
-  else if (numberDDI === "55" && parseInt(numberDDD) <= 30) {
-    const numberZDG = "55" + numberDDD + "9" + numberUser + "@c.us";
-    client.sendMessage(numberZDG, message).then(response => {
-    res.status(200).json({
-      status: true,
-      message: 'BOT-PH Mensagem enviada',
-      response: response
-    });
-    }).catch(err => {
-    res.status(500).json({
-      status: false,
-      message: 'BOT-PH Mensagem não enviada',
-      response: err.text
-    });
-    });
+
+  const numberDDD = number.substr(2, 2);
+  const numberUser = number.substr(-8, 8);
+  let numberZDG;
+
+  // Lógica para ajustar números do Brasil com ou sem o 9º dígito
+  if (parseInt(numberDDD) <= 30) {
+    numberZDG = "55" + numberDDD + "9" + numberUser + "@c.us";
+  } else {
+    numberZDG = "55" + numberDDD + numberUser + "@c.us";
   }
-  else if (numberDDI === "55" && parseInt(numberDDD) > 30) {
-    const numberZDG = "55" + numberDDD + numberUser + "@c.us";
-    client.sendMessage(numberZDG, message).then(response => {
-    res.status(200).json({
+
+  try {
+    const response = await client.sendMessage(numberZDG, message);
+    return res.status(200).json({
       status: true,
       message: 'BOT-PH Mensagem enviada',
       response: response
     });
-    }).catch(err => {
-    res.status(500).json({
+  } catch (err) {
+    console.error("Erro ao enviar mensagem:", err);
+    return res.status(500).json({
       status: false,
       message: 'BOT-PH Mensagem não enviada',
-      response: err.text
-    });
+      response: err?.message || err
     });
   }
 });
@@ -257,7 +237,7 @@ app.post('/send-media', [
 //   const nomeContato = msg._data.notifyName;
 //   let groupChat = await msg.getChat();
   
-//   if (groupChat.isGroup) return null;
+//   // if (groupChat.isGroup) return null;
 
 //   if (msg.type.toLowerCase() == "e2e_notification") return null;
   
@@ -421,9 +401,12 @@ app.post('/send-media', [
 // 	}
 // });
 
-// console.log("\nA Comunidade ZDG é a oportunidade perfeita para você aprender a criar soluções incríveis usando as APIs, sem precisar de experiência prévia com programação. Com conteúdo exclusivo e atualizado, você terá tudo o que precisa para criar robôs, sistemas de atendimento e automações do zero. O curso é projetado para iniciantes e avançados, e oferece um aprendizado prático e passo a passo para que você possa criar soluções incríveis.")
-// console.log("\nIncreva-se agora acessando link: comunidadezdg.com.br\n")
-    
-server.listen(port, function() {
-        console.log('Aplicação rodando na porta *: ' + port + ' . Acesse no link: http://localhost:' + port);
+server.listen(port, '0.0.0.0', () => {
+  console.log('Servidor da API do WhatsApp a ouvir em todas as interfaces na porta 8000');
+  console.log('Aplicação rodando na porta *: ' + port + ' . Acesse no link: http://localhost:' + port);
+
 });
+
+// server.listen(port, function() {
+//         console.log('Aplicação rodando na porta *: ' + port + ' . Acesse no link: http://localhost:' + port);
+// });
