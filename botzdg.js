@@ -28,10 +28,12 @@ debug: true
 app.use("/", express.static(__dirname + "/"))
 
 app.get('/', (req, res) => {
-  res.sendFile('index.html', {
+  res.sendFile('public/index.html', {
     root: __dirname
   });
 });
+
+
 
 const client = new Client({
   authStrategy: new LocalAuth({ clientId: 'BOT-PH' }),
