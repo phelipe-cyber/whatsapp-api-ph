@@ -4,7 +4,7 @@
   "description": "bot-ph: based on Whatsapp API",
   "main": "app.js",
   "scripts": {
-    "start": "node botzdg.js",
+    "start": "pm2 start botzdg.js",
     "start:dev": "nodemon botzdg.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
