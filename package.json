@@ -5,6 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "pm2 start botzdg.js",
+    "stop": "pm2 stop botzdg.js",
     "start:dev": "nodemon botzdg.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
