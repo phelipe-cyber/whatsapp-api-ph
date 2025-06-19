@@ -35,7 +35,7 @@ app.get('/', (req, res) => {
 
 const client = new Client({
   authStrategy: new LocalAuth({ clientId: 'BOT-PH' }),
-  puppeteer: { headless: true,
+  puppeteer: { headless: false,
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
