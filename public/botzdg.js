@@ -54,105 +54,101 @@ const client = new Client({
 
 client.initialize();
 
-let botReady = false;
+io.on('connection', function(socket) {
+  socket.emit('message', '© BOT-PH - Iniciado');
+  socket.emit('qr', './icon.svg');
+});
 
-// REGISTRE UMA VEZ SÓ
 client.on('qr', (qr) => {
-  qrcode.toDataURL(qr, (url) => {
-    io.emit('qr', url);
-    io.emit('message', '© BOT-PH QRCode recebido, aponte a câmera  seu celular!');
-    console.log('📲 Escaneie o QR Code');
-    io.emit('qr', qr); // envia o QR para todos os sockets conectados
-  });
+    console.log('QR RECEIVED', qr);
+    qrcode.toDataURL(qr, (err, url) => {
+      io.emit('qr', url);
+      io.emit('message', '© BOT-PH QRCode recebido, aponte a câmera  seu celular!');
+    });
 });
 
 client.on('ready', () => {
-  console.log('✅ BOT-PH pronto!');
-  io.emit('qr', './check.svg')	
-  io.emit('message', '✅ BOT-PH pronto!');
+    io.emit('ready', '© BOT-PH Dispositivo pronto!');
+    io.emit('message', '© BOT-PH Dispositivo pronto!');
+    io.emit('qr', './check.svg')	
+    console.log('© BOT-PH Dispositivo pronto');
 });
 
 client.on('authenticated', () => {
-  console.log('🔐 Autenticado com sucesso!');
-  io.emit('message', '🔐 Autenticado com sucesso!');
+    io.emit('authenticated', '© BOT-PH Autenticado!');
+    io.emit('message', '© BOT-PH Autenticado!');
+    console.log('© BOT-PH Autenticado');
 });
 
-client.on('auth_failure', (msg) => {
-  console.error('❌ Falha de autenticação:', msg);
-  io.emit('message', '❌ Falha de autenticação!');
+client.on('auth_failure', function() {
+    io.emit('message', '© BOT-PH Falha na autenticação, reiniciando...');
+    console.error('© BOT-PH Falha na autenticação');
+});
+
+client.on('change_state', state => {
+  console.log('© BOT-PH Status de conexão: ', state );
 });
 
 client.on('disconnected', (reason) => {
-  console.log('🔌 BOT desconectado:', reason);
-  io.emit('message', '🔌 BOT desconectado.');
-});
-
-// AGORA, a conexão socket pode emitir mensagens sem criar novos listeners
-io.on('connection', (socket) => {
-  socket.emit('message', '© BOT-PH - Iniciado');
+  io.emit('message', '© BOT-PH Cliente desconectado!');
+  console.log('© BOT-PH Cliente desconectado', reason);
+  client.initialize();
 });
 
 
-app.post('/send-message', async (req, res) => {
+// Send message
+app.post('/send-message', [
+  body('number').notEmpty().withMessage('Número é obrigatório'),
+  body('message').notEmpty().withMessage('Mensagem é obrigatória'),
+], async (req, res) => {
+  const errors = validationResult(req).formatWith(({
+    msg
+  }) => {
+    return msg;
+  });
 
-  const state = await client.getState();
-  if (state !== 'CONNECTED') {
-    return res.status(503).json({
+  if (!errors.isEmpty()) {
+    return res.status(422).json({
       status: false,
-      message: `BOT-PH não conectado. Estado atual: ${state}`,
+      message: errors.mapped()
     });
   }
 
-  const { number, message } = req.body;
+  let number = req.body.number;
+  const message = req.body.message;
 
-  if (!number || !message) {
-    return res.status(400).json({
-      status: false,
-      message: 'Número e mensagem são obrigatórios.',
-    });
+  // Garante que o número tenha DDI 55
+  if (!number.startsWith("55")) {
+    number = "55" + number;
+  }
+
+  const numberDDD = number.substr(2, 2);
+  const numberUser = number.substr(-8, 8);
+  let numberZDG;
+
+  // Lógica para ajustar números do Brasil com ou sem o 9º dígito
+  if (parseInt(numberDDD) <= 30) {
+    numberZDG = "55" + numberDDD + "9" + numberUser + "@c.us";
+  } else {
+    numberZDG = "55" + numberDDD + numberUser + "@c.us";
   }
 
   try {
-    const state = await client.getState();
-    if (state !== 'CONNECTED') {
-      return res.status(503).json({
-        status: false,
-        message: `BOT-PH não conectado. Estado atual: ${state}`,
-      });
-    }
-
-    const numberZDG = `${number}@c.us`;
     const response = await client.sendMessage(numberZDG, message);
-
     return res.status(200).json({
       status: true,
-      message: 'BOT-PH Mensagem enviada com sucesso!',
-      response,
+      message: 'BOT-PH Mensagem enviada',
+      response: response
     });
-  } catch (error) {
-    console.error('❌ Erro ao enviar mensagem:', error.message);
-
+  } catch (err) {
+    console.error("Erro ao enviar mensagem:", err);
     return res.status(500).json({
       status: false,
       message: 'BOT-PH Mensagem não enviada',
-      response: error.message,
+      response: err?.message || err
     });
   }
 });
-
-client.on('disconnected', async (reason) => {
-  console.log('🔌 BOT-PH desconectado:', reason);
-
-  botReady = false;
-
-  try {
-    await client.destroy();
-    await client.initialize();
-  } catch (e) {
-    console.error('Erro ao reinicializar o cliente:', e.message);
-  }
-});
-
 
 
 // Send media
