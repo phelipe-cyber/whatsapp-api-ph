@@ -57,47 +57,37 @@ client.initialize();
 let botReady = false;
 
 
-io.on('connection', function(socket) {
-  socket.emit('message', '© BOT-PH - Iniciado');
-  socket.emit('qr', './icon.svg');
-
+// REGISTRE UMA VEZ SÓ
 client.on('qr', (qr) => {
-    console.log('QR RECEIVED', qr);
-    qrcode.toDataURL(qr, (err, url) => {
-      socket.emit('qr', url);
-      socket.emit('message', '© BOT-PH QRCode recebido, aponte a câmera  seu celular!');
-    });
+  console.log('📲 Escaneie o QR Code');
+  io.emit('qr', qr); // envia o QR para todos os sockets conectados
 });
 
 client.on('ready', () => {
-    socket.emit('ready', '© BOT-PH Dispositivo pronto!');
-    socket.emit('message', '© BOT-PH Dispositivo pronto!');
-    socket.emit('qr', './check.svg')	
-    console.log('© BOT-PH Dispositivo pronto');
-    botReady = true;
+  console.log('✅ BOT-PH pronto!');
+  io.emit('message', '✅ BOT-PH pronto!');
 });
 
 client.on('authenticated', () => {
-    socket.emit('authenticated', '© BOT-PH Autenticado!');
-    socket.emit('message', '© BOT-PH Autenticado!');
-    console.log('© BOT-PH Autenticado');
+  console.log('🔐 Autenticado com sucesso!');
+  io.emit('message', '🔐 Autenticado com sucesso!');
 });
 
-client.on('auth_failure', function() {
-    socket.emit('message', '© BOT-PH Falha na autenticação, reiniciando...');
-    console.error('© BOT-PH Falha na autenticação');
-});
-
-client.on('change_state', state => {
-  console.log('© BOT-PH Status de conexão: ', state );
+client.on('auth_failure', (msg) => {
+  console.error('❌ Falha de autenticação:', msg);
+  io.emit('message', '❌ Falha de autenticação!');
 });
 
 client.on('disconnected', (reason) => {
-  socket.emit('message', '© BOT-PH Cliente desconectado!');
-  console.log('© BOT-PH Cliente desconectado', reason);
-  client.initialize();
+  console.log('🔌 BOT desconectado:', reason);
+  io.emit('message', '🔌 BOT desconectado.');
 });
+
+// AGORA, a conexão socket pode emitir mensagens sem criar novos listeners
+io.on('connection', (socket) => {
+  socket.emit('message', '© BOT-PH - Iniciado');
 });
+
 
 // Send message
 // app.post('/send-message', [
@@ -153,6 +143,14 @@ client.on('disconnected', (reason) => {
 //   }
 // });
 
+const state = await client.getState();
+if (state !== 'CONNECTED') {
+  return res.status(503).json({
+    status: false,
+    message: `BOT-PH não conectado. Estado atual: ${state}`,
+  });
+}
+
 app.post('/send-message', async (req, res) => {
   if (!botReady) {
     return res.status(503).json({
@@ -160,9 +158,9 @@ app.post('/send-message', async (req, res) => {
       message: 'BOT-PH ainda não está pronto.',
     });
   }
+
   const { number, message } = req.body;
 
-  // Verificação básica de parâmetros
   if (!number || !message) {
     return res.status(400).json({
       status: false,
@@ -170,16 +168,17 @@ app.post('/send-message', async (req, res) => {
     });
   }
 
-  // Verifica se o cliente está pronto
-  if (!client || !client.info || !client.info.me) {
-    return res.status(503).json({
-      status: false,
-      message: 'BOT-PH não está pronto ou foi desconectado.',
-    });
-  }
-
   try {
-    const numberZDG = `${number}@c.us`; // número com DDI + DDD + número (ex: 5511999999999@c.us)
+    // Confirma se o client está conectado ao WhatsApp
+    const state = await client.getState();
+    if (state !== 'CONNECTED') {
+      return res.status(503).json({
+        status: false,
+        message: `BOT-PH não conectado. Estado atual: ${state}`,
+      });
+    }
+
+    const numberZDG = `${number}@c.us`;
     const response = await client.sendMessage(numberZDG, message);
 
     return res.status(200).json({
@@ -197,6 +196,20 @@ app.post('/send-message', async (req, res) => {
     });
   }
 });
+
+client.on('disconnected', async (reason) => {
+  console.log('🔌 BOT-PH desconectado:', reason);
+
+  botReady = false;
+
+  try {
+    await client.destroy();
+    await client.initialize();
+  } catch (e) {
+    console.error('Erro ao reinicializar o cliente:', e.message);
+  }
+});
+
 
 
 // Send media
