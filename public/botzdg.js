@@ -94,6 +94,17 @@ client.on('disconnected', (reason) => {
   client.initialize();
 });
 
+const originalOn = client.on.bind(client);
+
+client.on = (event, callback) => {
+  const wrappedCallback = (...args) => {
+    console.log(`📡 Evento recebido: ${event}`);
+    console.dir(args, { depth: 2 });
+    callback(...args);
+  };
+  return originalOn(event, wrappedCallback);
+};
+
 // Send message
 app.post('/send-message', async (req, res) => {
 
