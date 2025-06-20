@@ -88,10 +88,16 @@ client.on('change_state', state => {
   console.log('© BOT-PH Status de conexão: ', state );
 });
 
-client.on('disconnected', (reason) => {
-  oi.emit('message', '© BOT-PH Cliente desconectado!');
-  console.log('© BOT-PH Cliente desconectado', reason);
-  client.initialize();
+client.on('disconnected', async (reason) => {
+  console.log('🔌 BOT-PH desconectado:', reason);
+  botReady = false;
+
+  try {
+    await client.destroy();
+    await client.initialize();
+  } catch (e) {
+    console.error('❌ Erro ao reiniciar o client:', e.message);
+  }
 });
 
 const originalOn = client.on.bind(client);
@@ -117,8 +123,17 @@ app.post('/send-message', async (req, res) => {
     });
   }
 
+   let cleanNumber = number.replace(/\D/g, '');
+
+   if (!cleanNumber.startsWith('55')) {
+     cleanNumber = '55' + cleanNumber;
+   }
+ 
+
   try {
     const state = await client.getState();
+    console.log('📡 Estado atual:', state);
+
     if (state !== 'CONNECTED') {
       return res.status(503).json({
         status: false,
@@ -126,7 +141,7 @@ app.post('/send-message', async (req, res) => {
       });
     }
 
-    const numberZDG = `${number}@c.us`;
+    const numberZDG = `${cleanNumber}@c.us`;
     const response = await client.sendMessage(numberZDG, message);
 
     return res.status(200).json({
