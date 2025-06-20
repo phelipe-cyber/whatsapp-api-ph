@@ -37,7 +37,7 @@ app.get('/', (req, res) => {
 const client = new Client({
   authStrategy: new LocalAuth({ clientId: 'BOT-PH' }),
   puppeteer: {
-    headless: false,
+    headless: true,
     executablePath: require('puppeteer').executablePath(),
     args: [
       '--no-sandbox',
@@ -90,7 +90,7 @@ io.on('connection', (socket) => {
 
 
 app.post('/send-message', async (req, res) => {
-  
+
   const state = await client.getState();
   if (state !== 'CONNECTED') {
     return res.status(503).json({
