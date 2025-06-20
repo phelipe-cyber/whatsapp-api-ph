@@ -56,15 +56,19 @@ client.initialize();
 
 let botReady = false;
 
-
 // REGISTRE UMA VEZ SÓ
 client.on('qr', (qr) => {
-  console.log('📲 Escaneie o QR Code');
-  io.emit('qr', qr); // envia o QR para todos os sockets conectados
+  qrcode.toDataURL(qr, (url) => {
+    io.emit('qr', url);
+    io.emit('message', '© BOT-PH QRCode recebido, aponte a câmera  seu celular!');
+    console.log('📲 Escaneie o QR Code');
+    io.emit('qr', qr); // envia o QR para todos os sockets conectados
+  });
 });
 
 client.on('ready', () => {
   console.log('✅ BOT-PH pronto!');
+  io.emit('qr', './check.svg')	
   io.emit('message', '✅ BOT-PH pronto!');
 });
 
