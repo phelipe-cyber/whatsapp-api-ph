@@ -37,7 +37,7 @@ app.get('/', (req, res) => {
 const client = new Client({
   authStrategy: new LocalAuth({ clientId: 'BOT-PH' }),
   puppeteer: {
-    headless: true,
+    headless: false,
     executablePath: require('puppeteer').executablePath(),
     args: [
       '--no-sandbox',
@@ -53,6 +53,9 @@ const client = new Client({
 });
 
 client.initialize();
+
+let botReady = false;
+
 
 io.on('connection', function(socket) {
   socket.emit('message', '© BOT-PH - Iniciado');
@@ -71,6 +74,7 @@ client.on('ready', () => {
     socket.emit('message', '© BOT-PH Dispositivo pronto!');
     socket.emit('qr', './check.svg')	
     console.log('© BOT-PH Dispositivo pronto');
+    botReady = true;
 });
 
 client.on('authenticated', () => {
@@ -150,6 +154,12 @@ client.on('disconnected', (reason) => {
 // });
 
 app.post('/send-message', async (req, res) => {
+  if (!botReady) {
+    return res.status(503).json({
+      status: false,
+      message: 'BOT-PH ainda não está pronto.',
+    });
+  }
   const { number, message } = req.body;
 
   // Verificação básica de parâmetros
