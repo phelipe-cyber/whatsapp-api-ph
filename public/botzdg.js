@@ -88,22 +88,14 @@ io.on('connection', (socket) => {
   socket.emit('message', '© BOT-PH - Iniciado');
 });
 
-async function checaEstado(req, res) {
+
+app.post('/send-message', async (req, res) => {
+  
   const state = await client.getState();
   if (state !== 'CONNECTED') {
     return res.status(503).json({
       status: false,
       message: `BOT-PH não conectado. Estado atual: ${state}`,
-    });
-  }
-}
-
-
-app.post('/send-message', async (req, res) => {
-  if (!botReady) {
-    return res.status(503).json({
-      status: false,
-      message: 'BOT-PH ainda não está pronto.',
     });
   }
 
