@@ -11,6 +11,7 @@ const port = process.env.PORT || 8000;
 const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
+const chromium = require('@sparticuz/chromium');
 
 function delay(t, v) {
   return new Promise(function(resolve) { 
@@ -38,17 +39,8 @@ const client = new Client({
   authStrategy: new LocalAuth({ clientId: 'BOT-PH' }),
   puppeteer: {
     headless: true,
-    executablePath: require('puppeteer').executablePath(),
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-accelerated-2d-canvas',
-      '--no-first-run',
-      '--no-zygote',
-      '--single-process',
-      '--disable-gpu'
-    ]
+    executablePath: chromium.executablePath(),
+    args: chromium.args,
   }
 });
 
