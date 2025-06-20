@@ -4,7 +4,7 @@
   "description": "bot-ph: based on Whatsapp API",
   "main": "app.js",
   "scripts": {
-    "start": "public/botzdg.js",
+    "start": "node public/botzdg.js",
     "stop": "pm2 stop public/botzdg.js",
     "start:prod": "node public/botzdg.js",
     "start:dev": "nodemon public/botzdg.js",
