@@ -89,12 +89,18 @@ client.on('change_state', state => {
   console.log('© BOT-PH Status de conexão: ', state );
 });
 
-client.on('disconnected', (reason) => {
-  io.emit('message', '© BOT-PH Cliente desconectado!');
-  console.log('© BOT-PH Cliente desconectado', reason);
-  client.initialize();
-});
+client.on('disconnected', async (reason) => {
+  console.log('🔌 BOT-PH desconectado:', reason);
 
+  botReady = false;
+
+  try {
+    await client.destroy();
+    await client.initialize();
+  } catch (e) {
+    console.error('Erro ao reinicializar o cliente:', e.message);
+  }
+});
 
 // Send message
 app.post('/send-message', [
