@@ -11,6 +11,7 @@ const port = process.env.PORT || 8000;
 const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
+const puppeteer = require('puppeteer');
 
 function delay(t, v) {
   return new Promise(function(resolve) { 
@@ -37,7 +38,7 @@ const client = new Client({
   authStrategy: new LocalAuth({ clientId: 'BOT-PH' }),
   
   puppeteer: { 
-    headless: false,
+    headless: true,
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',

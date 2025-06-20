@@ -8,6 +8,10 @@
 !.yarn/releases
 !.yarn/versions
 
+package-lock.json
+.wwebjs_auth/*
+.wwebjs_cache/*
+
 # testing
 /coverage
 
@@ -41,3 +45,4 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
