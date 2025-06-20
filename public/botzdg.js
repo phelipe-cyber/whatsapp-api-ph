@@ -88,68 +88,16 @@ io.on('connection', (socket) => {
   socket.emit('message', '© BOT-PH - Iniciado');
 });
 
-
-// Send message
-// app.post('/send-message', [
-//   body('number').notEmpty().withMessage('Número é obrigatório'),
-//   body('message').notEmpty().withMessage('Mensagem é obrigatória'),
-// ], async (req, res) => {
-//   const errors = validationResult(req).formatWith(({
-//     msg
-//   }) => {
-//     return msg;
-//   });
-
-//   if (!errors.isEmpty()) {
-//     return res.status(422).json({
-//       status: false,
-//       message: errors.mapped()
-//     });
-//   }
-
-//   let number = req.body.number;
-//   const message = req.body.message;
-
-//   // Garante que o número tenha DDI 55
-//   if (!number.startsWith("55")) {
-//     number = "55" + number;
-//   }
-
-//   const numberDDD = number.substr(2, 2);
-//   const numberUser = number.substr(-8, 8);
-//   let numberZDG;
-
-//   // Lógica para ajustar números do Brasil com ou sem o 9º dígito
-//   if (parseInt(numberDDD) <= 30) {
-//     numberZDG = "55" + numberDDD + "9" + numberUser + "@c.us";
-//   } else {
-//     numberZDG = "55" + numberDDD + numberUser + "@c.us";
-//   }
-
-//   try {
-//     const response = await client.sendMessage(numberZDG, message);
-//     return res.status(200).json({
-//       status: true,
-//       message: 'BOT-PH Mensagem enviada',
-//       response: response
-//     });
-//   } catch (err) {
-//     console.error("Erro ao enviar mensagem:", err);
-//     return res.status(500).json({
-//       status: false,
-//       message: 'BOT-PH Mensagem não enviada',
-//       response: err?.message || err
-//     });
-//   }
-// });
-
-const state = await client.getState();
-if (state !== 'CONNECTED') {
-  return res.status(503).json({
-    status: false,
-    message: `BOT-PH não conectado. Estado atual: ${state}`,
-  });
+async function checaEstado(req, res) {
+  const state = await client.getState();
+  if (state !== 'CONNECTED') {
+    return res.status(503).json({
+      status: false,
+      message: `BOT-PH não conectado. Estado atual: ${state}`,
+    });
+  }
 }
+
 
 app.post('/send-message', async (req, res) => {
   if (!botReady) {
@@ -169,7 +117,6 @@ app.post('/send-message', async (req, res) => {
   }
 
   try {
-    // Confirma se o client está conectado ao WhatsApp
     const state = await client.getState();
     if (state !== 'CONNECTED') {
       return res.status(503).json({
