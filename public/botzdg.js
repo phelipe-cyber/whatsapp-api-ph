@@ -11,7 +11,6 @@ const port = process.env.PORT || 8000;
 const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
-import chromium from '@sparticuz/chromium';
 
 function delay(t, v) {
   return new Promise(function(resolve) { 
@@ -39,42 +38,57 @@ const client = new Client({
   authStrategy: new LocalAuth({ clientId: 'BOT-PH' }),
   puppeteer: {
     headless: true,
-    executablePath: chromium.executablePath(),
-    args: chromium.args,
+    executablePath: require('puppeteer').executablePath(),
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-accelerated-2d-canvas',
+      '--no-first-run',
+      '--no-zygote',
+      '--single-process',
+      '--disable-gpu'
+    ]
   }
 });
 
 client.initialize();
 
 io.on('connection', function(socket) {
+  
+  client.on('change_state', state => {
+    console.log('© BOT-PH Status de conexão: ', state );
+  });
+
   socket.emit('message', '© BOT-PH - Iniciado');
   socket.emit('qr', './icon.svg');
 });
 
 client.on('qr', (qr) => {
-    console.log('QR RECEIVED', qr);
+   console.log('📲 Escaneie o QR Code', qr);
     qrcode.toDataURL(qr, (err, url) => {
       io.emit('qr', url);
       io.emit('message', '© BOT-PH QRCode recebido, aponte a câmera  seu celular!');
+      console.log('❌ Falha no QRcode:', err)
     });
 });
 
 client.on('ready', () => {
     io.emit('ready', '© BOT-PH Dispositivo pronto!');
     io.emit('message', '© BOT-PH Dispositivo pronto!');
-    io.emit('qr', './check.svg')	
-    console.log('© BOT-PH Dispositivo pronto');
+    io.emit('qr', './check.svg')
+    console.log('✅ BOT-PH Dispositivo pronto!');
 });
 
 client.on('authenticated', () => {
     io.emit('authenticated', '© BOT-PH Autenticado!');
     io.emit('message', '© BOT-PH Autenticado!');
-    console.log('© BOT-PH Autenticado');
+    console.log('🔐 Autenticado com sucesso!');
 });
 
-client.on('auth_failure', function() {
+client.on('auth_failure', (msg) => {
     io.emit('message', '© BOT-PH Falha na autenticação, reiniciando...');
-    console.error('© BOT-PH Falha na autenticação');
+    console.error('❌ Falha de autenticação:', msg);
 });
 
 client.on('change_state', state => {
