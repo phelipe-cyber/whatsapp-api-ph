@@ -1,3 +1,2 @@
-2025/06/19-14:09:47.011 16044 Reusing MANIFEST /home/phelipe/projetcs/WhatsAppApi/.wwebjs_auth/session-BOT-PH/Default/Session Storage/MANIFEST-000001
-2025/06/19-14:09:47.011 16044 Recovering log #3
-2025/06/19-14:09:47.014 16044 Reusing old log /home/phelipe/projetcs/WhatsAppApi/.wwebjs_auth/session-BOT-PH/Default/Session Storage/000003.log 
+2025/06/19-16:03:16.147 9adb Creating DB /home/phelipe/projetcs/WhatsAppApi/.wwebjs_auth/session-BOT-PH/Default/Session Storage since it was missing.
+2025/06/19-16:03:16.162 9adb Reusing MANIFEST /home/phelipe/projetcs/WhatsAppApi/.wwebjs_auth/session-BOT-PH/Default/Session Storage/MANIFEST-000001

@@ -1,3 +1,5 @@
-2025/06/19-14:09:46.358 16044 Reusing MANIFEST /home/phelipe/projetcs/WhatsAppApi/.wwebjs_auth/session-BOT-PH/Default/Local Storage/leveldb/MANIFEST-000001
-2025/06/19-14:09:46.358 16044 Recovering log #3
-2025/06/19-14:09:46.359 16044 Reusing old log /home/phelipe/projetcs/WhatsAppApi/.wwebjs_auth/session-BOT-PH/Default/Local Storage/leveldb/000003.log 
+2025/06/19-16:03:15.651 9adb Creating DB /home/phelipe/projetcs/WhatsAppApi/.wwebjs_auth/session-BOT-PH/Default/Local Storage/leveldb since it was missing.
+2025/06/19-16:03:15.670 9adb Reusing MANIFEST /home/phelipe/projetcs/WhatsAppApi/.wwebjs_auth/session-BOT-PH/Default/Local Storage/leveldb/MANIFEST-000001
+2025/06/19-20:44:31.307 bc0d Level-0 table #5: started
+2025/06/19-20:44:31.315 bc0d Level-0 table #5: 17223 bytes OK
+2025/06/19-20:44:31.318 bc0d Delete type=0 #3

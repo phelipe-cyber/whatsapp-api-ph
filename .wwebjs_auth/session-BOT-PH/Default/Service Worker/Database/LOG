@@ -1,3 +1,2 @@
-2025/06/19-14:09:46.383 16049 Reusing MANIFEST /home/phelipe/projetcs/WhatsAppApi/.wwebjs_auth/session-BOT-PH/Default/Service Worker/Database/MANIFEST-000001
-2025/06/19-14:09:46.384 16049 Recovering log #3
-2025/06/19-14:09:46.385 16049 Reusing old log /home/phelipe/projetcs/WhatsAppApi/.wwebjs_auth/session-BOT-PH/Default/Service Worker/Database/000003.log 
+2025/06/19-16:03:17.958 9ae7 Creating DB /home/phelipe/projetcs/WhatsAppApi/.wwebjs_auth/session-BOT-PH/Default/Service Worker/Database since it was missing.
+2025/06/19-16:03:17.976 9ae7 Reusing MANIFEST /home/phelipe/projetcs/WhatsAppApi/.wwebjs_auth/session-BOT-PH/Default/Service Worker/Database/MANIFEST-000001

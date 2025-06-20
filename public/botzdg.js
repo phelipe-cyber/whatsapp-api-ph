@@ -95,8 +95,8 @@ client.on('disconnected', (reason) => {
 
 // Send message
 app.post('/send-message', [
-  body('number').notEmpty(),
-  body('message').notEmpty(),
+  body('number').notEmpty().withMessage('Número é obrigatório'),
+  body('message').notEmpty().withMessage('Mensagem é obrigatória'),
 ], async (req, res) => {
   const errors = validationResult(req).formatWith(({
     msg
