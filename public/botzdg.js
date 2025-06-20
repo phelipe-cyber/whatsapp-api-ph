@@ -11,7 +11,7 @@ const port = process.env.PORT || 8000;
 const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
-const chromium = require('@sparticuz/chromium');
+import chromium from '@sparticuz/chromium';
 
 function delay(t, v) {
   return new Promise(function(resolve) { 
