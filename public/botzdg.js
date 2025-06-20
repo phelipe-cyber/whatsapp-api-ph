@@ -96,55 +96,94 @@ client.on('disconnected', (reason) => {
 });
 
 // Send message
-app.post('/send-message', [
-  body('number').notEmpty().withMessage('Número é obrigatório'),
-  body('message').notEmpty().withMessage('Mensagem é obrigatória'),
-], async (req, res) => {
-  const errors = validationResult(req).formatWith(({
-    msg
-  }) => {
-    return msg;
-  });
+// app.post('/send-message', [
+//   body('number').notEmpty().withMessage('Número é obrigatório'),
+//   body('message').notEmpty().withMessage('Mensagem é obrigatória'),
+// ], async (req, res) => {
+//   const errors = validationResult(req).formatWith(({
+//     msg
+//   }) => {
+//     return msg;
+//   });
 
-  if (!errors.isEmpty()) {
-    return res.status(422).json({
+//   if (!errors.isEmpty()) {
+//     return res.status(422).json({
+//       status: false,
+//       message: errors.mapped()
+//     });
+//   }
+
+//   let number = req.body.number;
+//   const message = req.body.message;
+
+//   // Garante que o número tenha DDI 55
+//   if (!number.startsWith("55")) {
+//     number = "55" + number;
+//   }
+
+//   const numberDDD = number.substr(2, 2);
+//   const numberUser = number.substr(-8, 8);
+//   let numberZDG;
+
+//   // Lógica para ajustar números do Brasil com ou sem o 9º dígito
+//   if (parseInt(numberDDD) <= 30) {
+//     numberZDG = "55" + numberDDD + "9" + numberUser + "@c.us";
+//   } else {
+//     numberZDG = "55" + numberDDD + numberUser + "@c.us";
+//   }
+
+//   try {
+//     const response = await client.sendMessage(numberZDG, message);
+//     return res.status(200).json({
+//       status: true,
+//       message: 'BOT-PH Mensagem enviada',
+//       response: response
+//     });
+//   } catch (err) {
+//     console.error("Erro ao enviar mensagem:", err);
+//     return res.status(500).json({
+//       status: false,
+//       message: 'BOT-PH Mensagem não enviada',
+//       response: err?.message || err
+//     });
+//   }
+// });
+
+app.post('/send-message', async (req, res) => {
+  const { number, message } = req.body;
+
+  // Verificação básica de parâmetros
+  if (!number || !message) {
+    return res.status(400).json({
       status: false,
-      message: errors.mapped()
+      message: 'Número e mensagem são obrigatórios.',
     });
   }
 
-  let number = req.body.number;
-  const message = req.body.message;
-
-  // Garante que o número tenha DDI 55
-  if (!number.startsWith("55")) {
-    number = "55" + number;
-  }
-
-  const numberDDD = number.substr(2, 2);
-  const numberUser = number.substr(-8, 8);
-  let numberZDG;
-
-  // Lógica para ajustar números do Brasil com ou sem o 9º dígito
-  if (parseInt(numberDDD) <= 30) {
-    numberZDG = "55" + numberDDD + "9" + numberUser + "@c.us";
-  } else {
-    numberZDG = "55" + numberDDD + numberUser + "@c.us";
+  // Verifica se o cliente está pronto
+  if (!client || !client.info || !client.info.me) {
+    return res.status(503).json({
+      status: false,
+      message: 'BOT-PH não está pronto ou foi desconectado.',
+    });
   }
 
   try {
+    const numberZDG = `${number}@c.us`; // número com DDI + DDD + número (ex: 5511999999999@c.us)
     const response = await client.sendMessage(numberZDG, message);
+
     return res.status(200).json({
       status: true,
-      message: 'BOT-PH Mensagem enviada',
-      response: response
+      message: 'BOT-PH Mensagem enviada com sucesso!',
+      response,
     });
-  } catch (err) {
-    console.error("Erro ao enviar mensagem:", err);
+  } catch (error) {
+    console.error('❌ Erro ao enviar mensagem:', error.message);
+
     return res.status(500).json({
       status: false,
       message: 'BOT-PH Mensagem não enviada',
-      response: err?.message || err
+      response: error.message,
     });
   }
 });
