@@ -11,7 +11,6 @@ const port = process.env.PORT || 8000;
 const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
-const puppeteer = require('puppeteer');
 
 function delay(t, v) {
   return new Promise(function(resolve) { 
@@ -34,11 +33,12 @@ app.get('/', (req, res) => {
   });
 });
 
+
 const client = new Client({
   authStrategy: new LocalAuth({ clientId: 'BOT-PH' }),
-  
-  puppeteer: { 
+  puppeteer: {
     headless: true,
+    executablePath: require('puppeteer').executablePath(),
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
@@ -46,9 +46,10 @@ const client = new Client({
       '--disable-accelerated-2d-canvas',
       '--no-first-run',
       '--no-zygote',
-      '--single-process', // <- this one doesn't works in Windows
+      '--single-process',
       '--disable-gpu'
-    ] }
+    ]
+  }
 });
 
 client.initialize();
