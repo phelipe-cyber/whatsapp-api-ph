@@ -54,8 +54,7 @@ const client = new Client({
 client.initialize();
 
 io.on('connection', function(socket) {
-  console.log(socket)
-  socket.emit('message', '© BOT-ZDG - Iniciado');
+  socket.emit('message', '© BOT-PH - Iniciado');
   socket.emit('qr', './icon.svg');
 });
 
@@ -63,111 +62,78 @@ client.on('qr', (qr) => {
     console.log('QR RECEIVED', qr);
     qrcode.toDataURL(qr, (err, url) => {
       io.emit('qr', url);
-      io.emit('message', '© BOT-ZDG QRCode recebido, aponte a câmera  seu celular!');
+      io.emit('message', '© BOT-PH QRCode recebido, aponte a câmera  seu celular!');
     });
 });
 
 client.on('ready', () => {
-    io.emit('ready', '© BOT-ZDG Dispositivo pronto!');
-    io.emit('message', '© BOT-ZDG Dispositivo pronto!');
+    io.emit('ready', '© BOT-PH Dispositivo pronto!');
+    io.emit('message', '© BOT-PH Dispositivo pronto!');
     io.emit('qr', './check.svg')	
-    console.log('© BOT-ZDG Dispositivo pronto');
+    console.log('© BOT-PH Dispositivo pronto');
 });
 
 client.on('authenticated', () => {
-    io.emit('authenticated', '© BOT-ZDG Autenticado!');
-    io.emit('message', '© BOT-ZDG Autenticado!');
-    console.log('© BOT-ZDG Autenticado');
+    io.emit('authenticated', '© BOT-PH Autenticado!');
+    io.emit('message', '© BOT-PH Autenticado!');
+    console.log('© BOT-PH Autenticado');
 });
 
 client.on('auth_failure', function() {
-    io.emit('message', '© BOT-ZDG Falha na autenticação, reiniciando...');
-    console.error('© BOT-ZDG Falha na autenticação');
+    io.emit('message', '© BOT-PH Falha na autenticação, reiniciando...');
+    console.error('© BOT-PH Falha na autenticação');
 });
 
 client.on('change_state', state => {
-  console.log('© BOT-ZDG Status de conexão: ', state );
+  console.log('© BOT-PH Status de conexão: ', state );
 });
 
 client.on('disconnected', (reason) => {
-  oi.emit('message', '© BOT-ZDG Cliente desconectado!');
-  console.log('© BOT-ZDG Cliente desconectado', reason);
+  oi.emit('message', '© BOT-PH Cliente desconectado!');
+  console.log('© BOT-PH Cliente desconectado', reason);
   client.initialize();
 });
 
 // Send message
-app.post('/send-message', [
-  body('number').notEmpty(),
-  body('message').notEmpty(),
-], async (req, res) => {
-  const errors = validationResult(req).formatWith(({
-    msg
-  }) => {
-    return msg;
-  });
+app.post('/send-message', async (req, res) => {
 
-  if (!errors.isEmpty()) {
-    return res.status(422).json({
+  const { number, message } = req.body;
+
+  if (!number || !message) {
+    return res.status(400).json({
       status: false,
-      message: errors.mapped()
+      message: 'Número e mensagem são obrigatórios.',
     });
   }
 
-  const number = req.body.number;
-  const numberDDI = number.substr(0, 2);
-  const numberDDD = number.substr(2, 2);
-  const numberUser = number.substr(-8, 8);
-  const message = req.body.message;
+  try {
+    const state = await client.getState();
+    if (state !== 'CONNECTED') {
+      return res.status(503).json({
+        status: false,
+        message: `BOT-PH não conectado. Estado atual: ${state}`,
+      });
+    }
 
-  if (numberDDI !== "55") {
-    const numberZDG = number + "@c.us";
-    client.sendMessage(numberZDG, message).then(response => {
-    res.status(200).json({
+    const numberZDG = `${number}@c.us`;
+    const response = await client.sendMessage(numberZDG, message);
+
+    return res.status(200).json({
       status: true,
-      message: 'BOT-ZDG Mensagem enviada',
-      response: response
+      message: 'BOT-PH Mensagem enviada com sucesso!',
+      response,
     });
-    }).catch(err => {
-    res.status(500).json({
+  } catch (error) {
+    console.error('❌ Erro ao enviar mensagem:', error.message);
+
+    return res.status(500).json({
       status: false,
-      message: 'BOT-ZDG Mensagem não enviada',
-      response: err.text
-    });
-    });
-  }
-  else if (numberDDI === "55" && parseInt(numberDDD) <= 30) {
-    const numberZDG = "55" + numberDDD + "9" + numberUser + "@c.us";
-    client.sendMessage(numberZDG, message).then(response => {
-    res.status(200).json({
-      status: true,
-      message: 'BOT-ZDG Mensagem enviada',
-      response: response
-    });
-    }).catch(err => {
-    res.status(500).json({
-      status: false,
-      message: 'BOT-ZDG Mensagem não enviada',
-      response: err.text
-    });
-    });
-  }
-  else if (numberDDI === "55" && parseInt(numberDDD) > 30) {
-    const numberZDG = "55" + numberDDD + numberUser + "@c.us";
-    client.sendMessage(numberZDG, message).then(response => {
-    res.status(200).json({
-      status: true,
-      message: 'BOT-ZDG Mensagem enviada',
-      response: response
-    });
-    }).catch(err => {
-    res.status(500).json({
-      status: false,
-      message: 'BOT-ZDG Mensagem não enviada',
-      response: err.text
-    });
+      message: 'BOT-PH Mensagem não enviada',
+      response: error.message,
     });
   }
 });
+
 
 // Send media
 app.post('/send-media', [
@@ -210,13 +176,13 @@ app.post('/send-media', [
     client.sendMessage(numberZDG, media, {caption: caption}).then(response => {
     res.status(200).json({
       status: true,
-      message: 'BOT-ZDG Imagem enviada',
+      message: 'BOT-PH Imagem enviada',
       response: response
     });
     }).catch(err => {
     res.status(500).json({
       status: false,
-      message: 'BOT-ZDG Imagem não enviada',
+      message: 'BOT-PH Imagem não enviada',
       response: err.text
     });
     });
@@ -226,13 +192,13 @@ app.post('/send-media', [
     client.sendMessage(numberZDG, media, {caption: caption}).then(response => {
     res.status(200).json({
       status: true,
-      message: 'BOT-ZDG Imagem enviada',
+      message: 'BOT-PH Imagem enviada',
       response: response
     });
     }).catch(err => {
     res.status(500).json({
       status: false,
-      message: 'BOT-ZDG Imagem não enviada',
+      message: 'BOT-PH Imagem não enviada',
       response: err.text
     });
     });
@@ -242,13 +208,13 @@ app.post('/send-media', [
     client.sendMessage(numberZDG, media, {caption: caption}).then(response => {
     res.status(200).json({
       status: true,
-      message: 'BOT-ZDG Imagem enviada',
+      message: 'BOT-PH Imagem enviada',
       response: response
     });
     }).catch(err => {
     res.status(500).json({
       status: false,
-      message: 'BOT-ZDG Imagem não enviada',
+      message: 'BOT-PH Imagem não enviada',
       response: err.text
     });
     });
