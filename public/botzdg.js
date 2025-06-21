@@ -53,9 +53,14 @@ const client = new Client({
 
 client.initialize();
 
-io.on('connection', function(socket) {
+io.on('connection', async (socket) => {
   socket.emit('message', '© BOT-PH - Iniciado');
   socket.emit('qr', './icon.svg');
+
+  const state = await client.getState();
+  console.log('📡 Estado atual:', state);
+  socket.emit('message, 📡 Estado atual:', state);
+  
 });
 
 client.on('qr', (qr) => {
