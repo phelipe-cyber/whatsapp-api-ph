@@ -60,7 +60,7 @@ io.on('connection', async (socket) => {
   const state = await client.getState();
   console.log('📡 Estado atual:', state);
   socket.emit('message, 📡 Estado atual:', state);
-  
+
 });
 
 client.on('qr', (qr) => {
@@ -155,6 +155,10 @@ app.post('/send-message', async (req, res) => {
       response,
     });
   } catch (error) {
+
+    const state = await client.getState();
+    console.log('📡 Estado atual:', state);
+    io.emit('message, 📡 Estado atual:', state);
     console.error('❌ Erro ao enviar mensagem:', error.message);
 
     return res.status(500).json({
